@@ -4,13 +4,16 @@ use \PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use \PhpOffice\PhpSpreadsheet\IOFactory;
 use \PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
+use \PHPMailer\PHPMailer\PHPMailer;
+use \PHPMailer\PHPMailer\Exception;
 
 require './vendor/autoload.php';
 require './vendor/phpmailer/phpmailer/language/phpmailer.lang-ja.php';
 
 $filePathExcel = './score.xlsx';
+$zipFilePath = './score.zip';
+$zipFileName = 'score.zip';
+
 $name = $_POST["name"];
 $company = $_POST["company"];
 $inquiry = $_POST["inquiry"];
@@ -66,28 +69,25 @@ $writer->save($filePathExcel);
 
 
 //ZIP化処理
-function zip($zipName, $file, $newExcelFile, $password)
+function zip($zipFileName, $filePathExcel, $newExcelFile, $password)
 {
     $zip = new ZipArchive;
-    $zip->open($zipName, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+    $zip->open($zipFileName, ZipArchive::CREATE | ZipArchive::OVERWRITE);
 
     //パスワード設定
     $zip->setPassword($password);
-    $zip->addFile($file, $newExcelFile);
+    $zip->addFile($filePathExcel, $newExcelFile);
     $zip->setEncryptionName($newExcelFile, ZipArchive::EM_TRAD_PKWARE);
     $zip->close();
 }
 
-zip("score.zip", "./score.xlsx", "data.xlsx", "uoGhie6s123762435");
+zip($zipFileName, $filePathExcel, "data.xlsx", "uoGhie6s123762435");
 
 
 //メール送信処理
 $lead = '名前:' . "$name\r\n"
     . '会社名:' . "$company\r\n"
     . '問い合わせ:' . "$inquiry\r\n";
-
-$zipFilePath = './score.zip';
-$zipFileName = 'score.zip';
 
 
 try {
