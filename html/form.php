@@ -1,10 +1,13 @@
 <?php
 
-use PhpOffice\PhpSpreadsheet\Reader\Xlsx as XlsxRender;
-//use PHPMailer\PHPMailer\PHPMailer;
+use \PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use \PhpOffice\PhpSpreadsheet\IOFactory;
+use \PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+
+
+// use PHPMailer\PHPMailer\PHPMailer;
 // use PHPMailer\PHPMailer\Exception;
 
-//include('./vendor/autoload.php');
 require './vendor/autoload.php';
 //require './vendor/phpmailer/phpmailer/language/phpmailer.lang-ja.php';
 
@@ -13,32 +16,54 @@ $name = $_POST["name"];
 $company = $_POST["company"];
 $inquiry = $_POST["inquiry"];
 
-//$reader = new XlsxRender();
-$fileSpreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($filePathExcel);
-$workSheet = $fileSpreadsheet->getSheetByName('Worksheet');
-$workSheet->setCellValue('A1' , '書き込み');
-$writer = new PhpOffice\PhpSpreadsheet\Writer\Xlsx($fileSpreadsheet);
+
+$spreadsheet = IOFactory::load($filePathExcel);
+
+$sheet = $spreadsheet->getActiveSheet();
+$sheetName = $sheet->getTitle();
+
+
+//名前項目 (名前範囲の指定)
+$nameCell = $spreadsheet->getNamedRange('NAME')->getRange();
+//不必要な文字列を削除
+$nameCellNum = ltrim($nameCell, $sheetName . "'" . "!" . "$");
+$nameCellNum = str_replace("$", "", $nameCellNum);
+//列、行を数字に変換
+$nameColumnNum = $sheet->getCell($nameCellNum)->getColumn();
+$nameColumnNum = Coordinate::columnIndexFromString($nameColumnNum);
+$nameRowNum = $sheet->getCell($nameCellNum)->getRow();
+
+
+//会社名項目 (名前範囲の指定)
+$companyCell = $spreadsheet->getNamedRange('COMPANY')->getRange();
+//不必要な文字列を削除
+$companyCellNum = ltrim($companyCell, $sheetName . "'" . "!" . "$");
+$companyCellNum = str_replace("$", "", $companyCellNum);
+//列、行を数字に変換
+$companyColumnNum = $sheet->getCell($companyCellNum)->getColumn();
+$companyColumnNum = Coordinate::columnIndexFromString($companyColumnNum);
+$companyRowNum = $sheet->getCell($companyCellNum)->getRow();
+
+
+//問い合わせ項目 (名前範囲の指定)
+$inquiryCell = $spreadsheet->getNamedRange('INQUIRY')->getRange();
+//不必要な文字列を削除
+$inquiryCellNum = ltrim($inquiryCell, $sheetName . "'" . "!" . "$");
+$inquiryCellNum = str_replace("$", "", $inquiryCellNum);
+//列、行を数字に変換
+$inquiryColumnNum = $sheet->getCell($inquiryCellNum)->getColumn();
+$inquiryColumnNum = Coordinate::columnIndexFromString($inquiryColumnNum);
+$inquiryRowNum = $sheet->getCell($inquiryCellNum)->getRow();
+
+
+//Excelに出力
+$sheet->setCellValueByColumnAndRow($nameColumnNum + 1, $nameRowNum, $name);
+$sheet->setCellValueByColumnAndRow($companyColumnNum + 1, $companyRowNum, $company);
+$sheet->setCellValueByColumnAndRow($inquiryColumnNum + 1, $inquiryRowNum, $inquiry);
+
+
+$writer = new Xlsx($spreadsheet);
 $writer->save($filePathExcel);
-
-// Excelをロード
-// $spreadsheet = $reader->load('./score.xlsx');
-// $spreadsheet->getActiveSheet()->setCellValue('A1', 'PhpSpreadsheet');
-//シートの指定
-//$sheet = $spreadsheet->getSheetByName('Worksheet');
-
-//セルの指定
-//$data = $sheet->getCell('A1')->getValue();
-
-//$data = $sheet->setCellValue('A1' , $name);
-
-
-//var_dump($data);
-
-
-
-
-
-
 
 
 
