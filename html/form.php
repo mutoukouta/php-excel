@@ -4,12 +4,11 @@ use \PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use \PhpOffice\PhpSpreadsheet\IOFactory;
 use \PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 
-
-// use PHPMailer\PHPMailer\PHPMailer;
-// use PHPMailer\PHPMailer\Exception;
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
 require './vendor/autoload.php';
-//require './vendor/phpmailer/phpmailer/language/phpmailer.lang-ja.php';
+require './vendor/phpmailer/phpmailer/language/phpmailer.lang-ja.php';
 
 $filePathExcel = './score.xlsx';
 $name = $_POST["name"];
@@ -61,49 +60,58 @@ $sheet->setCellValueByColumnAndRow($nameColumnNum + 1, $nameRowNum, $name);
 $sheet->setCellValueByColumnAndRow($companyColumnNum + 1, $companyRowNum, $company);
 $sheet->setCellValueByColumnAndRow($inquiryColumnNum + 1, $inquiryRowNum, $inquiry);
 
-
+//Excelファイルに書き込みし、保存
 $writer = new Xlsx($spreadsheet);
 $writer->save($filePathExcel);
 
 
+//ZIP化処理
+function zip($zipName, $file, $newExcelFile, $password)
+{
+    $zip = new ZipArchive;
+    $zip->open($zipName, ZipArchive::CREATE | ZipArchive::OVERWRITE);
 
-// function zip($zipname, $file, $newfile, $password)
-// {
-//     $zip = new ZipArchive;
-//     $zip->open($zipname, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+    //パスワード設定
+    $zip->setPassword($password);
+    $zip->addFile($file, $newExcelFile);
+    $zip->setEncryptionName($newExcelFile, ZipArchive::EM_TRAD_PKWARE);
+    $zip->close();
+}
 
-//  パスワード設定
-//     $zip->setPassword($password);
-//     $zip->addFile($file, $newfile);
-//     $zip->setEncryptionName($newfile, ZipArchive::EM_TRAD_PKWARE);
-//     $zip->close();
-// }
+zip("score.zip", "./score.xlsx", "data.xlsx", "uoGhie6s123762435");
 
-// zip("score.zip", "./score.xlsx", "data.xlsx", "uoGhie6s123762");
 
-// $lead = "名前:" . "$name\r\n"
-//     . "会社名:" . "$company\r\n"
-//     . "問い合わせ:" . "$inquiry\r\n";
+//メール送信処理
+$lead = '名前:' . "$name\r\n"
+    . '会社名:' . "$company\r\n"
+    . '問い合わせ:' . "$inquiry\r\n";
 
-// $filePathZip = './score.zip';
-// $fileName = 'score.zip';
+$zipFilePath = './score.zip';
+$zipFileName = 'score.zip';
 
-// mb_language("japanese");
-// mb_internal_encoding("UTF-8");
 
-// $mail = new PHPMailer(true);
+try {
+    mb_language("japanese");
+    mb_internal_encoding("UTF-8");
 
-// $mail->CharSet = "UTF-8";
+    $mail = new PHPMailer(true);
 
-// $mail->setFrom('sender@example.com', '送信秀夫');
-// $mail->addAddress('someone@xxxx.com', "受取太郎");
-// $mail->addAddress('someone@gmail.com');
-// $mail->addCC('foo@example.com');
+    $mail->CharSet = "UTF-8";
 
-// $mail->isHTML(false);
-// $mail->AddAttachment($filePathZip, $fileName);
-// $mail->Subject = 'テストメール';
-// $mail->Body  = $lead;
-// $mail->AltBody = $lead;
+    $mail->setFrom('sender@example.com', '送信秀夫');
+    $mail->addAddress('someone@xxxx.com', '受取太郎');
+    $mail->addAddress('someone@gmail.com');
+    $mail->addCC('foo@example.com');
 
-// $mail->send();
+    $mail->isHTML(false);
+    $mail->AddAttachment($zipFilePath, $zipFileName);
+    $mail->Subject = 'テストメール';
+    $mail->Body  = $lead;
+    $mail->AltBody = $lead;
+
+    $mail->send();
+
+    echo '送信できました';
+} catch (Exception $e) {
+    echo 'Message could not be sent. Mailer Error: {$mail->ErrorInfo}';
+}
