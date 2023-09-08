@@ -23,12 +23,12 @@
                 <input type="text" name="inquiry" id="inquiry">
             </li>
             <li>
-                <input type="submit" value="送信" id="button" class="g-recaptcha" data-sitekey="reCAPTCHA_site_key" data-callback='onSubmit' data-action='submit'>
+                <input type="submit" value="送信" id="button" class="g-recaptcha" name="g-recaptcha-response" data-sitekey="6Lf6JgsoAAAAAABIkSkkZxOneDX5zVp9BM8oCMmI" data-callback='onSubmit' data-action='submit'>
             </li>
         </ul>
 
     </form>
-    <script src="https://www.google.com/recaptcha/api.js"></script>
+    <script src="https://www.google.com/recaptcha/api.js?render=6Lf6JgsoAAAAAABIkSkkZxOneDX5zVp9BM8oCMmI"></script>
     <script src="./index.js"></script>
 
 </body>

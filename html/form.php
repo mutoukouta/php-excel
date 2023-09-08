@@ -14,7 +14,7 @@ require './vendor/phpmailer/phpmailer/language/phpmailer.lang-ja.php';
 
 
 //Google reCAPTCHA
-$recap_response = file_get_contents('https://www.google.com/recaptcha/api/siteverify?secret=[6Lf6JgsoAAAAAAykLSAs0GGr4k5_1G1EIJFdPcyS]&response=' . $_POST['g-recaptcha-response']);
+$recap_response = file_get_contents('https://www.google.com/recaptcha/api/siteverify?secret=6Lf6JgsoAAAAAAykLSAs0GGr4k5_1G1EIJFdPcyS&response=' . $_POST['g-recaptcha-response']);
 $recap_response = json_decode($recap_response);
 if ($recap_response->success == false) {
     echo "no";
