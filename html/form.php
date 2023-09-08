@@ -1,26 +1,35 @@
 <?php
 
+//phpspreadsheetインポート
 use \PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use \PhpOffice\PhpSpreadsheet\IOFactory;
 use \PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 
+//phpmailerインポート
 use \PHPMailer\PHPMailer\PHPMailer;
 use \PHPMailer\PHPMailer\Exception;
 
 require './vendor/autoload.php';
 require './vendor/phpmailer/phpmailer/language/phpmailer.lang-ja.php';
 
+
+//Google reCAPTCHA
+$recap_response = file_get_contents('https://www.google.com/recaptcha/api/siteverify?secret=[6Lf6JgsoAAAAAAykLSAs0GGr4k5_1G1EIJFdPcyS]&response=' . $_POST['g-recaptcha-response']);
+$recap_response = json_decode($recap_response);
+if ($recap_response->success == false) {
+    echo "no";
+}
+
 $filePathExcel = './score.xlsx';
 $zipFilePath = './score.zip';
 $zipFileName = 'score.zip';
 
 $name = $_POST["name"];
-$company = $_POST["company"];
+$telephone = $_POST["telephonenumber"];
 $inquiry = $_POST["inquiry"];
 
 
 $spreadsheet = IOFactory::load($filePathExcel);
-
 $sheet = $spreadsheet->getActiveSheet();
 $sheetName = $sheet->getTitle();
 
@@ -36,15 +45,15 @@ $nameColumnNum = Coordinate::columnIndexFromString($nameColumnNum);
 $nameRowNum = $sheet->getCell($nameCellNum)->getRow();
 
 
-//会社名項目 (名前範囲の指定)
-$companyCell = $spreadsheet->getNamedRange('COMPANY')->getRange();
+//電話番号項目 (名前範囲の指定)
+$telephoneCell = $spreadsheet->getNamedRange('TELEPHONE')->getRange();
 //不必要な文字列を削除
-$companyCellNum = ltrim($companyCell, $sheetName . "'" . "!" . "$");
-$companyCellNum = str_replace("$", "", $companyCellNum);
+$telephoneCellNum = ltrim($telephoneCell, $sheetName . "'" . "!" . "$");
+$telephoneCellNum = str_replace("$", "", $telephoneCellNum);
 //列、行を数字に変換
-$companyColumnNum = $sheet->getCell($companyCellNum)->getColumn();
-$companyColumnNum = Coordinate::columnIndexFromString($companyColumnNum);
-$companyRowNum = $sheet->getCell($companyCellNum)->getRow();
+$telephoneColumnNum = $sheet->getCell($telephoneCellNum)->getColumn();
+$telephoneColumnNum = Coordinate::columnIndexFromString($telephoneColumnNum);
+$telephoneRowNum = $sheet->getCell($telephoneCellNum)->getRow();
 
 
 //問い合わせ項目 (名前範囲の指定)
@@ -60,7 +69,7 @@ $inquiryRowNum = $sheet->getCell($inquiryCellNum)->getRow();
 
 //Excelに出力
 $sheet->setCellValueByColumnAndRow($nameColumnNum + 1, $nameRowNum, $name);
-$sheet->setCellValueByColumnAndRow($companyColumnNum + 1, $companyRowNum, $company);
+$sheet->setCellValueByColumnAndRow($telephoneColumnNum + 1, $telephoneRowNum, $telephone);
 $sheet->setCellValueByColumnAndRow($inquiryColumnNum + 1, $inquiryRowNum, $inquiry);
 
 //Excelファイルに書き込みし、保存
@@ -81,12 +90,12 @@ function zip($zipFileName, $filePathExcel, $newExcelFile, $password)
     $zip->close();
 }
 
-zip($zipFileName, $filePathExcel, "data.xlsx", "uoGhie6s123762435");
+zip($zipFileName, $filePathExcel, "data.xlsx", "uoGhie6s4343123762435");
 
 
 //メール送信処理
 $lead = '名前:' . "$name\r\n"
-    . '会社名:' . "$company\r\n"
+    . '電話番号:' . "$telephone\r\n"
     . '問い合わせ:' . "$inquiry\r\n";
 
 

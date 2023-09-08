@@ -8,26 +8,29 @@
 </head>
 
 <body>
-    <form action="./form.php" method="post">
+    <form id="demo-form" action="./form.php" method="post">
         <ul>
             <li>
                 <label for="name">名前</label>
                 <input type="text" name="name" id="name">
             </li>
             <li>
-                <label for="company">会社名</label>
-                <input type="text" name="company" id="company">
+                <label for="telephonenumber">電話番号</label>
+                <input type="text" name="telephonenumber" id="telephonenumber">
             </li>
             <li>
                 <label for="inquiry">問い合わせ</label>
                 <input type="text" name="inquiry" id="inquiry">
             </li>
             <li>
-                <input type="submit" value="送信" id="submit">
+                <input type="submit" value="送信" id="button" class="g-recaptcha" data-sitekey="reCAPTCHA_site_key" data-callback='onSubmit' data-action='submit'>
             </li>
         </ul>
 
     </form>
+    <script src="https://www.google.com/recaptcha/api.js"></script>
+    <script src="./index.js"></script>
+
 </body>
 
 </html>
